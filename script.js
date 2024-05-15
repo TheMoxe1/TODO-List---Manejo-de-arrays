@@ -6,7 +6,8 @@ function agregarTarea() {
   if (textoTarea !== "") {
     const tarea = {
       texto: textoTarea,
-      tiempo: new Date(),
+      fechaCreacion: new Date(),
+      fechaRealizacion: null,   
       completada: false
     };
     tareas.push(tarea);
@@ -23,16 +24,24 @@ function mostrarTareas() {
     li.innerHTML = `
       <input type="checkbox" onchange="alternarTarea(${index})" ${tarea.completada ? 'checked' : ''}>
       <span class="${tarea.completada ? 'completada' : ''}">${tarea.texto}</span>
-      <small>${formatoFecha(tarea.tiempo)}</small>
+      <small>Fecha de creación: ${formatoFecha(tarea.fechaCreacion)}</small>
+      <small>Fecha de realización: ${tarea.fechaRealizacion ? formatoFecha(tarea.fechaRealizacion) : 'Pendiente'}</small> <!-- Mostrar 'Pendiente' si la tarea aún no se ha realizado -->
     `;
     listaTareas.appendChild(li);
   });
 }
 
+
 function alternarTarea(index) {
   tareas[index].completada = !tareas[index].completada;
+  if (tareas[index].completada) {
+    tareas[index].fechaRealizacion = new Date(); 
+  } else {
+    tareas[index].fechaRealizacion = null; 
+  }
   mostrarTareas();
 }
+
 
 function formatoFecha(fecha) {
   return `${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString()}`;
@@ -40,7 +49,9 @@ function formatoFecha(fecha) {
 
 function mostrarTareaRapida() {
   const tareaRapida = tareas.filter(tarea => tarea.completada).sort((a, b) => {
-    return a.tiempo - b.tiempo;
+    const tiempoA = a.fechaRealizacion - a.fechaCreacion;
+    const tiempoB = b.fechaRealizacion - b.fechaCreacion;
+    return tiempoA - tiempoB;
   })[0];
   if (tareaRapida) {
     alert(`La tarea más rápida fue: "${tareaRapida.texto}"`);
